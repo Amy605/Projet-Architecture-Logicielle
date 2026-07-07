@@ -19,7 +19,6 @@
   </properties>
 
   <dependencies>
-    <!-- Runtime JAX-WS client (permet d'utiliser Service.create + getPort a partir de l'interface SEI) -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -36,22 +35,34 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.7.1</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>com.esp.client.Main</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <phase>package</phase>
-            <goals><goal>single</goal></goals>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <finalName>newsapp-client-1.0.0-jar-with-dependencies</finalName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/cxf/bus-extensions.txt</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.esp.client.Main</mainClass>
+                </transformer>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
